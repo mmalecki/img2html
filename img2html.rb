@@ -2,12 +2,42 @@ require 'RMagick'
 
 img = Magick::Image::read(ARGV[0]).first
 content = ""
-img.each_pixel { |pixel, c, r|
-  red = (pixel.red * 255) / Magick::QuantumRange
-  green = (pixel.green * 255) / Magick::QuantumRange
-  blue = (pixel.blue * 255) / Magick::QuantumRange 
-  content << "<div style='background-color: rgb(#{red}, #{green}, #{blue})'></div>"
-}
+
+def div(r, g, b, w=nil)
+  if w != nil and w != 1
+    "<div style='background-color: rgb(#{r}, #{g}, #{b}); width: #{w}px'></div>"
+  else
+    "<div style='background-color: rgb(#{r}, #{g}, #{b})'></div>"
+  end
+end
+
+def pixel_str(color, w=nil)
+  div((color.red * 255) / Magick::QuantumRange,
+      (color.green * 255) / Magick::QuantumRange,
+      (color.blue * 255) / Magick::QuantumRange, w)
+end
+
+if ARGV[1] == "-c" # -c enables "compression", lol
+  0.upto(img.rows - 1) { |row| # do a downto for additional amount of lulz
+    r = img.get_pixels(0, row, img.columns, 1)
+    color = r[0]
+    w = 0
+    r.each { |pixel, c, r|
+      if pixel == color
+        w += 1
+      else
+        content << pixel_str(color, w)
+        color = pixel
+        w = 1
+      end
+    }
+    content << pixel_str(color, w)
+  }
+else
+  img.each_pixel { |pixel, c, r|
+    content << pixel_str(pixel)
+  }
+end
 
 puts """
 <!doctype html>
