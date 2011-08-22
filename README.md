@@ -11,3 +11,5 @@ Usage: `ruby img2html.rb path-to-image`
 HTML will be written to stdout, so you may want to redirect it to some file
 to avoid flooding your terminal.
 
+When -c (`ruby img2html.rb path-to-image -c`) is supplied after file path, "compression" is enabled (few pixels with same color in a row are rendered with `width`).
+
